@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ table_name }} - ระบบสั่งอาหาร</title>
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+            border-right: 1px solid #eee;
+        }
+        
+        .tab:last-child {
+            border-right: none;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #f5f5f5;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .menu-item {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .menu-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-item.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .menu-item-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .menu-item h4 {
+            margin: 10px 0 5px;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .menu-item .price {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .qty-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qty-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        
+        .current-order {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-summary {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .total-price {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2e7d32;
+            text-align: right;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: #667eea;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .status-completed {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #666;
+            display: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="refresh-indicator" id="refresh-indicator">
+        <i class="bi bi-arrow-clockwise"></i> รีเฟรช...
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ {{ table_name }}</h1>
+            <p>ดูรายการอาหารและสั่งเพิ่มได้</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="current">รายการปัจจุบัน</button>
+            <button class="tab" data-tab="drinks">เครื่องดื่ม</button>
+            <button class="tab" data-tab="meals">อาหารจานเดียว</button>
+            <button class="tab" data-tab="snacks">ของทานเล่น</button>
+            <button class="tab" data-tab="desserts">ของหวาน</button>
+        </div>
+        
+        <div class="content">
+            <!-- Current Order Tab -->
+            <div id="current-tab" class="tab-content">
+                <h3>🧾 รายการสั่งปัจจุบัน</h3>
+                <div id="current-order-content">
+                    <div class="loading">กำลังโหลด...</div>
+                </div>
+            </div>
+            
+            <!-- Menu Tabs -->
+            <div id="drinks-tab" class="tab-content" style="display: none;">
+                <h3>🥤 เครื่องดื่ม</h3>
+                <div id="drinks-menu" class="menu-grid"></div>
+            </div>
+            
+            <div id="meals-tab" class="tab-content" style="display: none;">
+                <h3>🍽️ อาหารจานเดียว</h3>
+                <div id="meals-menu" class="menu-grid"></div>
+            </div>
+            
+            <div id="snacks-tab" class="tab-content" style="display: none;">
+                <h3>🍗 ของทานเล่น</h3>
+                <div id="snacks-menu" class="menu-grid"></div>
+            </div>
+            
+            <div id="desserts-tab" class="tab-content" style="display: none;">
+                <h3>🍰 ของหวาน</h3>
+                <div id="desserts-menu" class="menu-grid"></div>
+            </div>
+        </div>
+        
+        <!-- New Order Summary -->
+        <div id="new-order-summary" style="display: none;">
+            <div class="content">
+                <h3>📝 รายการใหม่ที่จะสั่ง</h3>
+                <div id="new-order-items"></div>
+                <div class="order-summary">
+                    <div class="total-price">รวม: <span id="new-total">฿0</span></div>
+                </div>
+                <div style="text-align: center;">
+                    <button class="btn btn-success" onclick="submitNewOrder()">ส่งรายการใหม่</button>
+                    <button class="btn" onclick="clearNewOrder()">ล้างรายการ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tableName = '{{ table_name }}';
+        const tableNumber = {{ table_number }};
+        let currentOrder = {};
+        let newOrder = {};
+        let menuData = {};
+        let currentTab = 'current';
+        let refreshTimer = null;
+        let isRefreshing = false;
+
+        const categoryMapping = {
+            'drinks': 'เครื่องดื่ม',
+            'meals': 'อาหารจานเดียว', 
+            'snacks': 'ของทานเล่น',
+            'desserts': 'ของหวาน'
+        };
+
+        // ไอคอนสำหรับแต่ละหมวดหมู่อาหาร
+        const categoryIcons = {
+            'เครื่องดื่ม': {
+                1: 'bi-cup-straw', 2: 'bi-cup-hot', 3: 'bi-droplet-fill', 4: 'bi-cup-straw',
+                5: 'bi-droplet', 6: 'bi-cup-hot', 7: 'bi-droplet-fill', 8: 'bi-cup-hot',
+                9: 'bi-cup-straw', 10: 'bi-droplet'
+            },
+            'อาหารจานเดียว': {
+                11: 'bi-bowl-hot', 12: 'bi-egg-fried', 13: 'bi-bowl-hot', 14: 'bi-egg-fried',
+                15: 'bi-bowl-hot', 16: 'bi-egg-fried', 17: 'bi-bowl-hot', 18: 'bi-egg-fried',
+                19: 'bi-bowl-hot', 20: 'bi-egg-fried'
+            },
+            'ของทานเล่น': {
+                21: 'bi-egg-fried', 22: 'bi-fire', 23: 'bi-egg', 24: 'bi-circle-fill',
+                25: 'bi-square-fill', 26: 'bi-egg-fried', 27: 'bi-fire', 28: 'bi-egg',
+                29: 'bi-square-fill', 30: 'bi-fire'
+            },
+            'ของหวาน': {
+                31: 'bi-cake2', 32: 'bi-cup-hot', 33: 'bi-gem', 34: 'bi-snow',
+                35: 'bi-cake2', 36: 'bi-cake2', 37: 'bi-cup-hot', 38: 'bi-cake2',
+                39: 'bi-circle-fill', 40: 'bi-cup-hot'
+            }
+        };
+
+        // Event listener สำหรับแท็บ
+        document.addEventListener('DOMContentLoaded', () => {
+            // ตั้งค่า tab listeners
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const tabName = e.target.getAttribute('data-tab');
+                    showTab(tabName);
+                });
+            });
+
+            loadData();
+        });
+
+        async function loadData() {
+            try {
+                // โหลดเมนู
+                const menuResponse = await fetch('/api/menu/all');
+                const menuResult = await menuResponse.json();
+                if (menuResult.success) {
+                    menuData = menuResult.data;
+                    populateMenus();
+                }
+
+                // โหลดรายการสั่งปัจจุบัน
+                await loadCurrentOrder();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function loadCurrentOrder() {
+            if (isRefreshing) return;
+            
+            try {
+                isRefreshing = true;
+                showRefreshIndicator();
+                
+                const response = await fetch(`/api/orders/${tableName}`);
+                const result = await response.json();
+                
+                if (result.success && result.order) {
+                    currentOrder = result.order;
+                    displayCurrentOrder();
+                } else {
+                    displayEmptyOrder();
+                }
+            } catch (error) {
+                console.error('Error loading current order:', error);
+                displayEmptyOrder();
+            } finally {
+                isRefreshing = false;
+                hideRefreshIndicator();
+            }
+        }
+
+        function showRefreshIndicator() {
+            document.getElementById('refresh-indicator').style.display = 'block';
+        }
+
+        function hideRefreshIndicator() {
+            document.getElementById('refresh-indicator').style.display = 'none';
+        }
+
+        function getMenuIcon(categoryName, itemId) {
+            const icons = categoryIcons[categoryName];
+            if (icons && icons[itemId]) {
+                return icons[itemId];
+            }
+            
+            // Default icons สำหรับแต่ละหมวดหมู่
+            const defaultIcons = {
+                'เครื่องดื่ม': 'bi-cup-straw',
+                'อาหารจานเดียว': 'bi-bowl-hot',
+                'ของทานเล่น': 'bi-egg-fried',
+                'ของหวาน': 'bi-cake2'
+            };
+            
+            return defaultIcons[categoryName] || 'bi-circle';
+        }
+
+        function populateMenus() {
+            Object.keys(categoryMapping).forEach(category => {
+                const categoryName = categoryMapping[category];
+                const items = menuData[categoryName] || [];
+                const container = document.getElementById(`${category}-menu`);
+                
+                container.innerHTML = items.map(item => {
+                    const iconClass = getMenuIcon(categoryName, item.id);
+                    return `
+                        <div class="menu-item" onclick="addToNewOrder(${item.id})">
+                            <div class="menu-item-icon">
+                                <i class="bi ${iconClass}"></i>
+                            </div>
+                            <h4>${item.name}</h4>
+                            <div class="price">฿${item.price}</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="event.stopPropagation(); changeQuantity(${item.id}, -1)">-</button>
+                                <input type="number" class="qty-input" id="qty-${item.id}" value="0" min="0" 
+                                       onchange="updateQuantity(${item.id}, this.value)" onclick="event.stopPropagation()">
+                                <button class="qty-btn" onclick="event.stopPropagation(); changeQuantity(${item.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function displayCurrentOrder() {
+            if (!currentOrder || !currentOrder.items || currentOrder.items.length === 0) {
+                displayEmptyOrder();
+                return;
+            }
+
+            const statusText = currentOrder.status === 'completed' ? 
+                '<span class="status-completed">✅ เสร็จแล้ว</span>' : 
+                '<span class="status-pending">🕒 กำลังทำ</span>';
+
+            const orderHtml = `
+                <div class="current-order">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4>รายการสั่ง</h4>
+                        <div>${statusText}</div>
+                    </div>
+                    ${currentOrder.items.map(item => `
+                        <div class="order-item">
+                            <div>
+                                <strong>${item.name}</strong><br>
+                                <small>฿${item.price} × ${item.quantity}</small>
+                            </div>
+                            <div><strong>฿${item.subtotal}</strong></div>
+                        </div>
+                    `).join('')}
+                    <div class="order-summary">
+                        <div class="total-price">รวมทั้งสิ้น: ฿${currentOrder.total_price}</div>
+                        <div style="margin-top: 10px; color: #666;">
+                            เวลาสั่ง: ${currentOrder.timestamp}
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="showTab('drinks')">สั่งเพิ่ม</button>
+                    <button class="btn" onclick="loadCurrentOrder()">รีเฟรช</button>
+                </div>
+            `;
+
+            document.getElementById('current-order-content').innerHTML = orderHtml;
+        }
+
+        function displayEmptyOrder() {
+            const emptyHtml = `
+                <div class="empty-state">
+                    <div style="font-size: 64px; margin-bottom: 20px;">🍽️</div>
+                    <h3>ยังไม่มีรายการสั่งอาหาร</h3>
+                    <p>เริ่มสั่งอาหารได้เลย!</p>
+                    <button class="btn btn-primary" onclick="showTab('drinks')" style="margin-top: 20px;">
+                        เริ่มสั่งอาหาร
+                    </button>
+                </div>
+            `;
+            document.getElementById('current-order-content').innerHTML = emptyHtml;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            
+            // Add active class to clicked tab
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            currentTab = tabName;
+            
+            // จัดการ auto-refresh timer
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+                refreshTimer = null;
+            }
+
+            // ตั้ง auto-refresh เฉพาะในแท็บ "รายการปัจจุบัน"
+            if (tabName === 'current') {
+                refreshTimer = setInterval(() => {
+                    if (currentTab === 'current' && !isRefreshing) {
+                        loadCurrentOrder();
+                    }
+                }, 30000); // รีเฟรชทุก 30 วินาที
+            }
+            
+            // Update new order summary visibility
+            updateNewOrderSummary();
+        }
+
+        function addToNewOrder(itemId) {
+            changeQuantity(itemId, 1);
+        }
+
+        function changeQuantity(itemId, change) {
+            const input = document.getElementById(`qty-${itemId}`);
+            if (!input) return;
+            
+            const currentQty = parseInt(input.value) || 0;
+            const newQty = Math.max(0, currentQty + change);
+            
+            input.value = newQty;
+            updateQuantity(itemId, newQty);
+        }
+
+        function updateQuantity(itemId, quantity) {
+            quantity = Math.max(0, parseInt(quantity) || 0);
+            
+            if (quantity === 0) {
+                delete newOrder[itemId];
+            } else {
+                newOrder[itemId] = quantity;
+            }
+            
+            // Update visual state
+            const input = document.getElementById(`qty-${itemId}`);
+            if (input) {
+                const menuItem = input.closest('.menu-item');
+                if (menuItem) {
+                    if (quantity > 0) {
+                        menuItem.classList.add('selected');
+                    } else {
+                        menuItem.classList.remove('selected');
+                    }
+                }
+            }
+            
+            updateNewOrderSummary();
+        }
+
+        function updateNewOrderSummary() {
+            const summaryDiv = document.getElementById('new-order-summary');
+            const itemsDiv = document.getElementById('new-order-items');
+            const totalSpan = document.getElementById('new-total');
+            
+            const orderItems = Object.keys(newOrder);
+            
+            if (orderItems.length === 0) {
+                summaryDiv.style.display = 'none';
+                return;
+            }
+            
+            summaryDiv.style.display = 'block';
+            
+            let total = 0;
+            let itemsHtml = '';
+            
+            orderItems.forEach(itemId => {
+                const item = findMenuItemById(parseInt(itemId));
+                if (item) {
+                    const quantity = newOrder[itemId];
+                    const subtotal = item.price * quantity;
+                    total += subtotal;
+                    
+                    itemsHtml += `
+                        <div class="order-item">
+                            <div>
+                                <strong>${item.name}</strong><br>
+                                <small>฿${item.price} × ${quantity}</small>
+                            </div>
+                            <div><strong>฿${subtotal}</strong></div>
+                        </div>
+                    `;
+                }
+            });
+            
+            itemsDiv.innerHTML = itemsHtml;
+            totalSpan.textContent = `฿${total}`;
+        }
+
+        function findMenuItemById(itemId) {
+            for (const category of Object.values(menuData)) {
+                const item = category.find(item => item.id === itemId);
+                if (item) return item;
+            }
+            return null;
+        }
+
+        async function submitNewOrder() {
+            if (Object.keys(newOrder).length === 0) {
+                alert('กรุณาเลือกอาหารที่ต้องการสั่ง');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/orders/customer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        table_name: tableName,
+                        items: newOrder
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('ส่งรายการสั่งเรียบร้อยแล้ว!');
+                    clearNewOrder();
+                    await loadCurrentOrder();
+                    showTab('current');
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('เกิดข้อผิดพลาดในการส่งรายการ');
+            }
+        }
+
+        function clearNewOrder() {
+            newOrder = {};
+            
+            // Reset all quantity inputs
+            document.querySelectorAll('.qty-input').forEach(input => {
+                input.value = '0';
+            });
+            
+            // Remove selected class from all menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            updateNewOrderSummary();
+        }
+
+        // ป้องกันการรีเฟรชหน้าเมื่อเปลี่ยนแท็บ
+        window.addEventListener('beforeunload', () => {
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+            }
+        });
+    </script>
+</body>
+</html>

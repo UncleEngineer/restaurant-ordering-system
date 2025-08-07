@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแสดงรายการสั่งซื้อ - ครัว</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+        .btn-secondary:hover {
+            background-color: #1976D2;
+        }
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #4CAF50;
+        }
+        .order-card.completed {
+            border-left-color: #9E9E9E;
+            opacity: 0.7;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .table-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        .order-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .order-items {
+            margin-bottom: 15px;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .item-name {
+            font-weight: 500;
+        }
+        .item-quantity {
+            color: #2196F3;
+            font-weight: bold;
+        }
+        .item-price {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .order-total {
+            text-align: right;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #E91E63;
+            padding-top: 10px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .complete-btn {
+            background-color: #FF5722;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .complete-btn:hover {
+            background-color: #E64A19;
+        }
+        .no-orders {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+        }
+        .summary-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .summary-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-table th,
+        .summary-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .summary-table th {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        .summary-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .grand-total {
+            background-color: #E8F5E8;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .status-pending {
+            color: #FF5722;
+            font-weight: bold;
+        }
+        .status-completed {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ ระบบแสดงรายการสั่งซื้อ - ครัว</h1>
+            <p>แสดงรายการสั่งอาหารแบบเรียลไทม์</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="loadOrders()">🔄 รีเฟรช</button>
+            <button class="btn btn-secondary" onclick="toggleSummary()">📊 สรุปรายการ</button>
+            <button class="btn btn-secondary" onclick="autoRefresh()">⚡ รีเฟรชอัตโนมัติ</button>
+        </div>
+        
+        <div id="orders-container">
+            <div class="orders-grid" id="orders-grid"></div>
+        </div>
+        
+        <div id="summary-container" style="display: none;">
+            <div class="summary-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>โต๊ะ</th>
+                            <th>จำนวนเมนู</th>
+                            <th>จำนวนชิ้น</th>
+                            <th>ราคารวม</th>
+                            <th>เวลาสั่ง</th>
+                            <th>สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+        let showingSummary = false;
+
+        function loadOrders() {
+            fetch('/api/orders')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayOrders(data.orders);
+                    } else {
+                        console.error('Error loading orders:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function displayOrders(orders) {
+            const ordersGrid = document.getElementById('orders-grid');
+            
+            if (orders.length === 0) {
+                ordersGrid.innerHTML = '<div class="no-orders">🍽️ ยังไม่มีรายการสั่งอาหาร</div>';
+                return;
+            }
+
+            ordersGrid.innerHTML = orders.map(order => `
+                <div class="order-card ${order.status === 'completed' ? 'completed' : ''}">
+                    <div class="order-header">
+                        <div class="table-name">${order.table_name}</div>
+                        <div class="order-time">${order.timestamp}</div>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="item">
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-quantity">x${item.quantity}</span>
+                                <span class="item-price">฿${item.subtotal}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-total">
+                        รวม: ฿${order.total_price}
+                    </div>
+                    ${order.status === 'pending' ? `
+                        <button class="btn complete-btn" onclick="completeOrder('${order.table_name}')">
+                            ✅ ทำเสร็จแล้ว
+                        </button>
+                    ` : `
+                        <div style="text-align: center; color: #4CAF50; font-weight: bold; margin-top: 10px;">
+                            ✅ เสร็จสิ้นแล้ว
+                        </div>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        function completeOrder(tableName) {
+            fetch(`/api/orders/${tableName}/complete`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadOrders();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            });
+        }
+
+        function loadSummary() {
+            fetch('/api/orders/summary')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displaySummary(data.summary, data.grand_total);
+                    } else {
+                        console.error('Error loading summary:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function displaySummary(summary, grandTotal) {
+            const tbody = document.getElementById('summary-tbody');
+            
+            if (Object.keys(summary).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">ยังไม่มีรายการสั่งอาหาร</td></tr>';
+                return;
+            }
+
+            const rows = Object.entries(summary).map(([tableName, data]) => `
+                <tr>
+                    <td><strong>${tableName}</strong></td>
+                    <td>${data.items_count} เมนู</td>
+                    <td>${data.total_items} ชิ้น</td>
+                    <td>฿${data.total_price}</td>
+                    <td>${data.timestamp}</td>
+                    <td class="status-${data.status}">
+                        ${data.status === 'pending' ? 'กำลังทำ' : 'เสร็จแล้ว'}
+                    </td>
+                </tr>
+            `).join('');
+
+            tbody.innerHTML = rows + `
+                <tr class="grand-total">
+                    <td><strong>รวมทั้งหมด</strong></td>
+                    <td colspan="2"></td>
+                    <td><strong>฿${grandTotal}</strong></td>
+                    <td colspan="2"></td>
+                </tr>
+            `;
+        }
+
+        function toggleSummary() {
+            const ordersContainer = document.getElementById('orders-container');
+            const summaryContainer = document.getElementById('summary-container');
+            const btn = event.target;
+
+            showingSummary = !showingSummary;
+
+            if (showingSummary) {
+                ordersContainer.style.display = 'none';
+                summaryContainer.style.display = 'block';
+                btn.textContent = '📋 แสดงรายการ';
+                loadSummary();
+            } else {
+                ordersContainer.style.display = 'block';
+                summaryContainer.style.display = 'none';
+                btn.textContent = '📊 สรุปรายการ';
+                loadOrders();
+            }
+        }
+
+        function autoRefresh() {
+            const btn = event.target;
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                btn.textContent = '⚡ รีเฟรชอัตโนมัติ';
+                btn.style.backgroundColor = '#2196F3';
+            } else {
+                autoRefreshInterval = setInterval(() => {
+                    if (showingSummary) {
+                        loadSummary();
+                    } else {
+                        loadOrders();
+                    }
+                }, 3000);
+                btn.textContent = '⏸️ หยุดรีเฟรช';
+                btn.style.backgroundColor = '#FF5722';
+            }
+        }
+
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+        });
+    </script>
+</body>
+</html>

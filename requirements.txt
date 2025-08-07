@@ -1,0 +1,4 @@
+flet
+flask
+flask-cors
+requests
